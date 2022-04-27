@@ -3,26 +3,42 @@ import os
 
 import aws_cdk as cdk
 
-from s3objectlambda_cdk.s3objectlambda_cdk_stack import S3ObjectlambdaCdkStack
-
+from s3Stack.s3JsonBucket import s3ObjectLambdaJson
+from lambdaStack.transformLambda.transformLambda import s3ObjectLambdaTransform
+from lambdaStack.piiLambda.piiLambda import s3ObjectLambdaPII
+from lambdaStack.jsonLambda.jsonLambda import LambdaJson
 
 app = cdk.App()
-S3ObjectlambdaCdkStack(app, "S3ObjectlambdaCdkStack",
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
 
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
+# S3 Bucket to store JSON files
+bkt_json = s3ObjectLambdaJson(app, "s3-object-bucket",
+    description="S3 Bucket to store JSON files")
 
-    #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
+# Lambda Function to create Json input 
+lambda_input = LambdaJson(app, "s3-object-create-json-lambda-stack",    
+                            stack_log_level="INFO",
+                            inputBucket=bkt_json.bucket,
+                            description="Generate JSON files.")
 
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
 
-    #env=cdk.Environment(account='123456789012', region='us-east-1'),
+# Process S3 requests in flight using lambda
+s3_obj_transform_lambda_stack = s3ObjectLambdaTransform(
+    app,
+    f"s3-object-transform-lambda-stack",
+    stack_log_level="INFO",
+    transform_lambda_ap_name="lambda-transform-json",
+    inputBucket=bkt_json.bucket, 
+    description="Transform JSON file to delete columns."
+)
 
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-    )
+# Process S3 requests in flight using lambda
+s3_obj_PII_lambda_stack = s3ObjectLambdaPII(
+    app,
+    f"s3-object-PII-lambda-stack",
+    stack_log_level="INFO",
+    pii_lambda_ap_name="lambda-pii-hash",
+    inputBucket=bkt_json.bucket, 
+    description="Transform JSON file to hash Customer column."
+)
 
 app.synth()
