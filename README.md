@@ -1,19 +1,21 @@
 
-# Welcome to your CDK Python project!
+# AWS S3 Object Lambda Demo
 
-This is a blank project for Python development with CDK.
+Data stored  on AWS S3 can be easily shared across different applications and services. Requirements and access may differ for each application and therefore, they might need a different view of a single data source. 
+For instance, a dataset created by the the sales department may include personally identifiable information (PII) that is not needed when the same data is processed for reporting and should be redacted.
+With this use case in mind, we will take a look at how to use S3 Object Lambda. It is a new feature that enable us to add code to process data retrieved from S3 before returning it to an application or service. 
+S3 Object Lambda uses Lambda functions to process and transform data. The Lambda function is invoked inline with a standard S3 GET request. This enable developers to present multiple views from the same dataset, with the possibility to update the Lambda functions and modify these views at any time.
+In this post, we will learn how to use S3 Object Lambda by solving a simple use case. In this scenario, we have 2 applications that ingest data from a single bucket. 
+Considerations
+We will create a single bucket to store the data.
+The data will be in JSON format. 
+- We will create 3 AWS Lambda functions. 
+- The 1st Lambda function will be used to generate JSON files. 
+- The 2nd Lambda function will be used to transform data for Application 1.
+- The 3rd Lambda function will be used to hash columns in the data for Application 2.
+- We will create all necessary resources using AWS Cloud Development Kit (AWS CDK) and Python as our programming language.To manually create a virtualenv on MacOS and Linux:
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
-
+## Setup Environment
 ```
 $ python -m venv .venv
 ```
