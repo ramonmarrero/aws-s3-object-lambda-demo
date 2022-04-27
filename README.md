@@ -8,7 +8,7 @@ With this use case in mind, we will take a look at how to use S3 Object Lambda. 
 S3 Object Lambda uses Lambda functions to process and transform data. The Lambda function is invoked inline with a standard S3 GET request. This enable developers to present multiple views from the same dataset, with the possibility to update the Lambda functions and modify these views at any time.
 In this post, we will learn how to use S3 Object Lambda by solving a simple use case. In this scenario, we have 2 applications that ingest data from a single bucket. 
 
-###Considerations
+### Considerations
 
 We will create a single bucket to store the data.
 The data will be in JSON format. 
